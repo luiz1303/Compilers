@@ -2,8 +2,9 @@
     #include <stdio.h>
     #include <stdlib.h>
 
-    int yylex();
     int yyval;
+    extern int yyerror(char *s)
+    extern int yylex();
     extern ARQ *yyin; //Arquivo de entrada ARQ declarado no Analisador Léxico
 %}
 
@@ -30,6 +31,7 @@
         IF
         ELSE
         THEN
+        WHILE
         DO
 
         OPNPAR
@@ -48,16 +50,16 @@
         ASSIGN
         DIF
         SMALLEQ
-        BIGEQ
+        BIGGEQ
 
-        NUM
+        NUMINT
         NUMREAL
         ID    
 
-%right NOT
-%left  PLUS MINUS
-%left  MULT DIV
-%left  SMALLER BIGGER SMALLEQ BIGEQ
+%right NOT //Not possui a menor prioridade na lista de precedências
+%left  PLUS MINUS //Mais e menos possuem mesma precedência
+%left  MULT DIV //Multiplicação e Divisão possuem a mesma precedêncencia (E possuem maior prioridade que + e -)
+%left  SMALLER BIGGER SMALLEQ BIGGEQ
 %left  EQUAL DIF
 %right ASSIGN
 
@@ -66,17 +68,5 @@
 //GLC
 
 %%
-#include "lex.yy.c"
 
-int main () {
-    yyparse();
-    return 0;
-}
-
-void yyerror(char *s) {
-    printf("\n\033[0;31mERROR: %c\033[0;37m\n", s); 
-}
-
-int yywrap() {
-    return 1;
-}
+//Código em C
