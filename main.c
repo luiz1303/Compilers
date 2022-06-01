@@ -2,9 +2,8 @@
 /*UTFPR-PB - RA: a2155184*/
 #include <stdio.h>
 #include <stdlib.h>
-#include "lex.yy.h" //Gerado através do analisador léxico, permite que yyin seja visível para este arquivo
+#include "lex.yy.c" //Gerado na execução do analisador léxico!
 
-int yylex(void);
 extern int yyparser (void);
 
 void yyerror(char constant *s) {
@@ -26,12 +25,7 @@ int main (int argc, char *argv[]) {
     }
 
     yyin = arq;
-    yylex()
     int result_code = yyparse(); //yyparse retorna 0 se não encontrar nenhuma inconsistência no processo de análise sintática
-
-    if (error) {
-        printf("\n\033[0;31m%d ERROS ENCONTRADOS!\033[0;37m\n", error);
-    }
     
     fclose(arq);
     return result_code; //Retorna 0 se não houverem erros e 1 se algo estiver errado!

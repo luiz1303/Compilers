@@ -1,13 +1,20 @@
 /* noyywrap: Lê o arquivo uma única vez */
 %option noyywrap
-/* %option header-file="lex.yy.h" /// header-file="lex.yy.h" vai gerar o arquivo, já referenciado main*/
 
 %{
-    //#include "y.tab.h" //Relaciona flex e bison
-    extern int yyval;
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+    #include "parser.tab.h"
+    
     int line = 1; //Contador de linhas
     int error = 0; //Contador de erros
+    extern int yyval;
 
+    //Exibe uma mensagem quando um erro léxico é encontrado!
+    void error_message() { 
+        printf("\033[0;31mERRO LEXICO ---> Linha %d\033[0;37m", line);
+    }
 %}
 
 inteiro   "-"?[1-9][0-9]*
@@ -15,9 +22,9 @@ real      "-"?[0-9]*[.][0-9]*
 id        [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
-\n                        {line++;} //Quando ler "/n" vai aumentar o contador de linhas e pular uma linha
-\t                        {/*Ignorar*/}
-[[:space:]]               {/*Ignorar*/}
+\n                        {line++;} /* "/n" aumenta contador de linhas*/
+\t                        {/*Ignora identações*/}
+[[:space:]]               {/*Ignora espaços*/}
 programa                  {yylval = atoi(yytext); return PROG;}
 inicio                    {yylval = atoi(yytext); return BEGIN;}
 fim                       {yylval = atoi(yytext); return END;}
@@ -26,9 +33,9 @@ escreva                   {yylval = atoi(yytext); return PRINT;}
 funcao                    {yylval = atoi(yytext); return FUNC;}
 procedimento              {yylval = atoi(yytext); return PROCED;}
 var                       {yylval = atoi(yytext); return VAR;}
-inteiro                   {yylval = atoi(yytext); return INT;}
-real                      {yylval = atoi(yytext); return REAL;}
-booleano                  {yylval = atoi(yytext); return BOOL;}
+inteiro                   {yylval = atoi(yytext); return INT_TYPE;}
+real                      {yylval = atoi(yytext); return REAL_TYPE;}
+booleano                  {yylval = atoi(yytext); return BOOL_TYPE;}
 verdadeiro                {yylval = atoi(yytext); return TRUE;}
 falso                     {yylval = atoi(yytext); return FALSE;}
 not                       {yylval = atoi(yytext); return NOT;}
@@ -55,8 +62,8 @@ div                       {yylval = atoi(yytext); return DIV;}
 "<>"                      {yylval = atoi(yytext); return DIF;}
 "<="                      {yylval = atoi(yytext); return SMALLEQ;}
 ">="                      {yylval = atoi(yytext); return BIGGEQ;}
-{inteiro}                 {yylval = atoi(yytext); return NUMINT;}
-{real}                    {yylval = atoi(yytext); return NUMREAL;}
+{inteiro}                 {yylval = atoi(yytext); return NUM;}
+{real}                    {yylval = atoi(yytext); return NUM;}
 {id}                      {yylval = atoi(yytext); return ID;}
 [{][^}]*[}]               { 
                             int i; char *comentario = yytext; 
@@ -65,14 +72,8 @@ div                       {yylval = atoi(yytext); return DIV;}
                                     line++; //Para não perder a contagem de linhas (que depende de \n) é necessário um contador quando são feitos comentários
                             }
 } // Qualquer conteúdo entre { e } que seja diferente de '}' será ignorado! --> Reconhece Comentários multi Linha
-{id}[^([:space:]\n\t)]+   {error++; yylval = atoi(yytext); return ERROR;} //Gera um erro para identificadores não seguidos de espaço, \n ou \t
-([0-9]+{id}*)+            {error++; yylval = atoi(yytext); return ERROR;} //Gera um erro para tokens como: 123teste
-.                         {error++; yylval = atoi(yytext); return ERROR;} //Qualquer token não identificado gerará um erro!
+{id}[^([:space:]\n\t)]+   {error_message(); error++; return ERROR;} //Gera um erro para identificadores não seguidos de espaço, \n ou \t
+([0-9]+{id}*)+            {error_message(); error++; return ERROR;} //Gera um erro para tokens como: 123teste
+.                         {error_message(); error++; return ERROR;} //Gera um erro para qualquer token não identificado
 
 %%
-
-int main (void) {
-
-    yylex();
-    return 0;
-}
