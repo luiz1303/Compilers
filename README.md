@@ -4,11 +4,11 @@ Arquivos desenvolvidos durante o segundo projeto da matéria de compiladores. Pa
 
 ## **INTRODUÇÃO:**
 Os arquivos `fatorial.sml` e `maior.sml`  foram escritos em determinada linguagem chamada `Small L`. O objetivo é realizar a **análise léxica** e **sintática** para identificar se os arquivos citados estão dentro das especificações da gramática fornecida para a linguagem, que pode ser vista abaixo. 
-___
+
 O arquivo `scanner.l` possui as especificações para fazer a **análise léxica**: Identificar os tokens da linguagem e apontar eventuais erros léxicos (Como nomes de variáveis do tipo *"123teste"*, por exemplo).
-___
+
 O arquivo `parser.y`, por sua vez, é responsável pela **análise sintática**, que define se a estrutura de cada sentença segue a gramática proposta para a linguagem.
-___
+
 Por fim, o arquivo `main.c`, é o responsável por fazer a
 correta leitura das entradas e relacionar os arquivos.
 
