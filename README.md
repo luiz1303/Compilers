@@ -24,7 +24,7 @@ bison -d parser.y
 gcc -c -o parser.o parser.tab.c
 gcc -c -o main.o main.c
 gcc -o main parser.o main.o
-.\main .\arquivos_teste\nome-arquivo
+.\main.c .\arquivos_teste\nome-arquivo
 ```
 Em **nome-arquivo**, substitua por: `fatorial.sml` ou `maior.sml`.
 
