@@ -1,14 +1,25 @@
-/* Trabalho de Compiladores - Análise Sintática
+/* Trabalho de Compiladores - Análise Semântica
 Aluno: Luiz Ricardo Brumati De Lima
 UTFPR-PB - RA: a2155184 */
 
 %{
     #include <stdio.h>
     #include <stdlib.h>
+    #include "armazenamento.h"
 
     extern void yyerror(const char *msg);
     extern int yylex(void);
+
+    ARMAZENAMENTO *armazenamento; //Lista Encadeada usada para armazenar as variáveis declaradas pelo usuário
 %}
+
+
+%union {
+    /*Relacionado a YYSTYPE, usada no analisador léxico*/
+
+    int val;
+    char* lexic_val;
+}
 
 %token  PROG
         START
@@ -57,7 +68,22 @@ UTFPR-PB - RA: a2155184 */
 %left  TRUE FALSE
 %right ASSIGN
 
+
+%type <val> numero fator termo simples expressao identificador
+%start programa
+
 %%
+
+/* 
+%type <val> não-terminais  ---> Especifíca que os não terminais numero,fator,termo..etc serão do tipo val, criado na %union
+
+%start programa  ---> Especifíca qual não-terminal será usado como início da gramática */
+
+
+
+
+
+
 
 /*
 A linguagem Small L é ambígua, visto que pode apresentar mais de uma árvore de derivação para enunciados com if, then e else.
@@ -65,78 +91,90 @@ O livro Compiladores: Princípios, Técnicas e Ferramentas (Alfred V. Aho), pag.
 que pode ser incorporada diretamente na gramática: Associar cada else ao then anterior mais próximo, quando este último ainda não está associado.
 */
 
-programa: PROG identificador SCOLON bloco        {printf("P -> programa ID ; BLOCO \n\n\033[0;32m ---> ANALISE SINTATICA CONCLUIDA: Nenhum erro foi encontrado.\033[0;37m");};
+programa: PROG identificador SCOLON bloco                         {printf("\n\033[0;32m ---> ANALISE CONCLUIDA: Nenhum erro foi encontrado.\033[0;37m");}
     ;
-bloco: VAR declaracao START comandos END         {printf("B -> var DECLARACAO inicio COMANDOS fim\n");}
+bloco: VAR declaracao START comandos END                          { }
     ;
-declaracao: nome_var COLON tipo SCOLON           {printf("DECLARACAO -> NOMEVAR : TIPO ;\n");}
-    | nome_var COLON tipo SCOLON declaracao      {printf("DECLARACAO -> NOMEVAR : TIPO ; DECLARACAO\n");}
+declaracao: nome_var COLON tipo SCOLON                            { }
+    | nome_var COLON tipo SCOLON declaracao                       { }
     ;
-nome_var: identificador                          {printf("NOMEVAR -> IDENTIFICADOR\n");}
-    | identificador COMMA nome_var               {printf("NOMEVAR -> IDENTIFICADOR , NOMEVAR\n");}
+nome_var: identificador                                           { }
+    | identificador COMMA nome_var                                { }
     ;
-tipo: INT_TYPE                                   {printf("TIPO -> tipo_inteiro\n");}
-    | REAL_TYPE                                  {printf("TIPO -> tipo_real\n");}
-    | BOOL_TYPE                                  {printf("TIPO -> tipo_booleano\n");}
+tipo: INT_TYPE                                                    { }
+    | REAL_TYPE                                                   { }
+    | BOOL_TYPE                                                   { }
     ;
-comandos: comando                                {printf("COMANDOS -> COMANDO\n");}
-    | comando SCOLON comandos                    {printf("COMANDOS -> COMANDO ; COMANDOS\n");}
+comandos: comando                                                 { }
+    | comando SCOLON comandos                                     { }
     ;
-    /*Correção de ambiguidade*/
-comando: cmd_Associado                           {printf("COMANDO -> COMANDO_ASSOCIADO\n");}
-    | cmd_NaoAssociado                           {printf("COMANDO -> COMANDO_NAO_ASSOCIADO\n");}                 
+/*Correção de ambiguidade*/
+comando: cmd_Associado                                            { }
+    | cmd_NaoAssociado                                            { }                
     ;
-cmd_Associado: IF expressao THEN cmd_Associado ELSE cmd_Associado {printf("COMANDO_ASSOCIADO -> se EXPRESSAO entao COMANDO_ASSOCIADO senao COMANDO_ASSOCIADO\n");}  
-    | atribuicao                                 {printf("COMANDO -> ATRIBUICAO\n");}
-    | enquanto                                   {printf("COMANDO -> ENQUANTO\n");}
-    | leitura                                    {printf("COMANDO -> LEITURA\n");}
-    | escrita                                    {printf("COMANDO -> ESCRITA\n");}
+cmd_Associado: IF expressao THEN cmd_Associado ELSE cmd_Associado { }                  
+    | atribuicao                                                  { }
+    | enquanto                                                    { }
+    | leitura                                                     { }
+    | escrita                                                     { }
     ;
-cmd_NaoAssociado: IF expressao THEN comando      {printf("COMANDO_NAO_ASSOCIADO -> se EXPRESSAO entao COMANDO\n");}
-    | IF expressao THEN cmd_Associado ELSE cmd_NaoAssociado {printf("COMANDO_NAO_ASSOCIADO -> se EXPRESSAO entao COMANDO_ASSOCIADO senao COMANDO_NAO_ASSOCIADO\n");}
+cmd_NaoAssociado: IF expressao THEN comando                       { }
+    | IF expressao THEN cmd_Associado ELSE cmd_NaoAssociado       { }
     ;
 /*Fim da correção de ambiguidade*/
-atribuicao: identificador ASSIGN expressao       {printf("ATRIBUICAO -> IDENTIFICADOR := EXPRESSAO\n");}
+atribuicao: identificador ASSIGN expressao                        { }
     ;
-enquanto: WHILE expressao DO cmd_Associado       {printf("ENQUANTO -> enquanto EXPRESSAO faca CMD_ASSOCIADO\n");}
+enquanto: WHILE expressao DO cmd_Associado                        { }
     ;
-leitura: READ OPNPAR identificador CLSEPAR       {printf("LEITURA -> leia (IDENTIFICADOR)\n");}
+leitura: READ OPNPAR identificador CLSEPAR                        { }
     ;
-escrita: PRINT OPNPAR identificador CLSEPAR      {printf("LEITURA -> escreva (IDENTIFICADOR)\n");}
+escrita: PRINT OPNPAR identificador CLSEPAR                       { }
     ;
-expressao: simples                               {printf("EXPRESSAO -> SIMPLES\n");}
-    | simples opRelacional simples               {printf("EXPRESSAO -> SIMPLES OP_RELACIONAL SIMPLES\n");}
+expressao: simples                                                { }
+    | simples opRelacional simples                                { }
     ;
-opRelacional: DIF                                {printf("OP_RELACIONAL -> <>\n");}
-    | EQUAL                                      {printf("OP_RELACIONAL -> =\n");}
-    | SMALLER                                    {printf("OP_RELACIONAL -> <\n");}
-    | BIGGER                                     {printf("OP_RELACIONAL -> >\n");}
-    | SMALLEQ                                    {printf("OP_RELACIONAL -> <=\n");}
-    | BIGGEQ                                     {printf("OP_RELACIONAL -> >=\n");}
+opRelacional: DIF                                                 { }
+    | EQUAL                                                       { }
+    | SMALLER                                                     { }
+    | BIGGER                                                      { }
+    | SMALLEQ                                                     { }
+    | BIGGEQ                                                      { }
     ;
-simples: termo operador termo                    {printf("SIMPLES -> TERMO OPERADOR TERMO\n");}
-    | termo                                      {printf("SIMPLES -> TERMO\n");}
+simples: termo operador termo                                     { }
+    | termo                                                       { }
     ;
-operador: PLUS                                   {printf("OPERADOR -> +\n");}
-    | MINUS                                      {printf("OPERADOR -> -\n");}
-    | OR                                         {printf("OPERADOR -> ou\n");}
+operador: PLUS                                                    { }
+    | MINUS                                                       { }
+    | OR                                                          { }
     ;
-termo: fator                                     {printf("TERMO -> FATOR\n");}
-    | fator op fator                             {printf("TERMO -> FATOR OPERADOR FATOR\n");}
+termo: fator                                                      { }
+    | fator op fator                                              { }
     ;
-op: MULT                                         {printf("OP -> *\n");}
-    | DIV                                        {printf("OP -> div\n");}
-    | AND                                        {printf("OP -> e\n");}
+op: MULT                                                          { }
+    | DIV                                                         { }
+    | AND                                                         { }
     ;
-fator: identificador                             {printf("FATOR -> IDENTIFICADOR\n");}
-    | numero                                     {printf("FATOR -> NUMERO\n");}
-    | OPNPAR expressao CLSEPAR                   {printf("FATOR -> (EXPRESSAO)\n");}
-    | TRUE                                       {printf("FATOR -> verdadeiro\n");}
-    | FALSE                                      {printf("FATOR -> falso\n");}
-    | NOT fator                                  {printf("FATOR -> not FATOR\n");}
+fator: identificador                                              { }
+    | numero                                                      { }
+    | OPNPAR expressao CLSEPAR                                    { }
+    | TRUE                                                        { }
+    | FALSE                                                       { }
+    | NOT fator                                                   { }
     ;
-identificador: ID                                {printf("IDENTIFICADOR -> id\n");}
+identificador: ID                                                 { }
     ;
-numero: NUM                                      {printf("NUMERO -> num\n");}
+numero: NUM                                                       { }
     ;
 %%
+
+
+/*
+    %union:
+    https://www.gnu.org/software/bison/manual/html_node/Union-Decl.html
+
+    %type
+    https://www.gnu.org/software/bison/manual/html_node/Type-Decl.html
+
+    Ações semânticas:
+    https://www.gnu.org/software/bison/manual/html_node/Semantic-Actions.html
+*/

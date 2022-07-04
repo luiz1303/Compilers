@@ -12,7 +12,7 @@ UTFPR-PB - RA: a2155184 */
     
     int line = 1; //Contador de linhas
     int error = 0; //Contador de erros
-    extern int yyval;
+    extern YYSTYPE yylval;
 
     //Exibe uma mensagem quando um erro léxico é encontrado!
     void error_message() { 
@@ -62,10 +62,10 @@ enquanto                  {return WHILE;}
 faca                      {return DO;}
 [(]                       {return OPNPAR;}
 [)]                       {return CLSEPAR;}
-[+]                       {return PLUS;}
-[-]                       {return MINUS;}
-[*]                       {return MULT;}
-div                       {return DIV;}
+[+]                       {yylval.lexic_val = strdup(yytext); return PLUS;}
+[-]                       {yylval.lexic_val = strdup(yytext); return MINUS;}
+[*]                       {yylval.lexic_val = strdup(yytext); return MULT;}
+div                       {yylval.lexic_val = strdup(yytext); return DIV;}
 [:]                       {return COLON;}
 [;]                       {return SCOLON;}
 [,]                       {return COMMA;}
@@ -76,9 +76,9 @@ div                       {return DIV;}
 "<>"                      {return DIF;}
 "<="                      {return SMALLEQ;}
 ">="                      {return BIGGEQ;}
-{inteiro}                 {return NUM;}
-{real}                    {return NUM;}
-{id}                      {return ID;}
+{inteiro}                 {yylval.val = atoi(yytext); return NUM;}
+{real}                    {yylval.val = atoi(yytext); return NUM;}
+{id}                      {yylval.lexic_val = strdup(yytext); return ID;}
 [{][^}]*[}]               {multilineComment(yyleng, yytext);} // Qualquer conteúdo entre { e } que seja diferente de '}' será ignorado!
 {id}[^([:space:]\n\t)]+   {error_message();} //Gera um erro para identificadores não seguidos de espaço, \n ou \t
 ([0-9]+{id}*)+            {error_message();} //Gera um erro para tokens como: 123teste
@@ -86,6 +86,18 @@ div                       {return DIV;}
 %%
 
 /*
-SOBRE YYVAL = ATOI (YYLEX);
+
+REFERÊNCIAS:
+
+
+SOBRE YYVAL = ATOI;
 https://www.ibm.com/docs/pt-br/zos/2.4.0?topic=lex-translations
+
+
+
+YYSTYPE:
+https://stackoverflow.com/questions/1851829/how-to-use-yylval-with-strings-in-yacc#:~:text=The%20YYSTYPE%20is%20a%20union,within%20the%20yacc%20source%20file.
+
+https://www.gnu.org/software/bison/manual/html_node/Value-Type.html
+
 */
