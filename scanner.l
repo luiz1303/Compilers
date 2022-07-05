@@ -77,7 +77,7 @@ div                       {yylval.lexic_val = strdup(yytext); return DIV;}
 "<="                      {return SMALLEQ;}
 ">="                      {return BIGGEQ;}
 {inteiro}                 {yylval.val = atoi(yytext); return NUM;}
-{real}                    {yylval.val = atoi(yytext); return NUM;}
+{real}                    {return NUM;}
 {id}                      {yylval.lexic_val = strdup(yytext); return ID;}
 [{][^}]*[}]               {multilineComment(yyleng, yytext);} // Qualquer conteúdo entre { e } que seja diferente de '}' será ignorado!
 {id}[^([:space:]\n\t)]+   {error_message();} //Gera um erro para identificadores não seguidos de espaço, \n ou \t
