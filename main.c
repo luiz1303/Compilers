@@ -1,4 +1,4 @@
-/* Trabalho de Compiladores - Análise Sintática
+/* Trabalho de Compiladores - Análise Semântica
 Aluno: Luiz Ricardo Brumati De Lima
 UTFPR-PB - RA: a2155184 */
 #include <stdio.h>

@@ -7,6 +7,7 @@ programa fatorial ;
        fat := 1 ;   
        enquanto ( i <= n ) faca
             fat := fat * i ;
-            i := i + 1 ;   
-       escreva ( valor )
+            i := i + 1 ;
+       escreva ( fat )
     fim
+
