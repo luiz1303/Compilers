@@ -5,5 +5,5 @@ var
  x := 5 ; 
  y := 10 ;
  x := x + x * y ;
-escreva ( y )
+escreva ( x )
 fim
